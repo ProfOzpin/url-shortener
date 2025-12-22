@@ -64,4 +64,4 @@ uvloop==0.22.1
 watchfiles==1.1.1
 websockets==15.0.1
 yarl==1.22.0
-gunicorn==23.0.0s
+gunicorn==23.0.0
