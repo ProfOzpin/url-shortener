@@ -124,7 +124,7 @@ export const Dashboard: React.FC = () => {
                   rel="noreferrer"
                   style={{ textDecoration: 'none', color: 'blue', fontSize: '0.9rem' }}
                 >
-                  Visit Link &nearr;
+                  Visit Link
                 </a>
               </div>
 
@@ -144,7 +144,16 @@ export const Dashboard: React.FC = () => {
                   <div className="ai-content">
                     {insight || "No data available yet."}
                   </div>
+                  
                 )}
+                <button 
+                  onClick={() => navigate(`/analytics?url_id=${selectedUrl.id}`)}
+                  className="advanced-analytics-btn"
+                  style={{ marginTop: '15px', width: '100%' }}
+                >
+                  📊 View Advanced Analytics
+                </button>
+
               </div>
               
               <p style={{ marginTop: '20px', fontSize: '0.8rem', color: '#888' }}>
