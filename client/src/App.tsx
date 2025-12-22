@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Auth } from './pages/Auth';
 import { Dashboard } from './pages/Dashboard';
+import { JSX } from 'react/jsx-runtime';
 
 function App() {
   const PrivateRoute = ({ children }: { children: JSX.Element }) => {
