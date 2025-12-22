@@ -18,7 +18,7 @@
     "jsx": "react-jsx",
 
     /* Types */
-    "types": ["vite/client", "node"],
+    "types": ["vite/client", "node", "react", "react-dom"],
 
     /* Linting */
     "strict": true,
