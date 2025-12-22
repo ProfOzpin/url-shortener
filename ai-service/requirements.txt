@@ -1,0 +1,9 @@
+fastapi[all]
+uvicorn
+sqlalchemy
+pandas
+requests
+python-dotenv
+geoip2
+pyyaml
+gunicorn

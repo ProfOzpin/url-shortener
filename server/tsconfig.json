@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    /* Basic Options */
+    "target": "es2020",               /* Generates standard JS compatible with Node 14+ */
+    "module": "commonjs",             /* Standard Node.js module system */
+    "outDir": "./dist",               /* Where compiled JS goes */
+    "rootDir": "./src",               /* Where your TS files are */
+    
+    /* Strict Type-Checking Options */
+    "strict": true,                   /* Enable all strict type-checking options */
+    "noImplicitAny": true,
+    
+    /* Module Resolution Options */
+    "esModuleInterop": true,          /* crucial for importing 'express' and other CommonJS libs */
+    "resolveJsonModule": true,        /* Allows importing .json files if needed */
+    "skipLibCheck": true,             /* Skips type checking of declaration files */
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}
