@@ -151,7 +151,7 @@ app.get('/:code', async (req, res) => {
       // Redirect immediately (FR-03.1)
       res.redirect(original_url);
 
-      // ASYNC LOGGING (Fire and forget - FR-04.1)
+      // ASYNC LOGGING
       // We do not await this, so it doesn't slow down the redirect
       const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
       const userAgent = req.headers['user-agent'] || '';

@@ -119,7 +119,7 @@ export const Dashboard: React.FC = () => {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <h2 style={{ margin: 0 }}>/{selectedUrl.short_code}</h2>
                 <a 
-                  href={`http://localhost:3000/${selectedUrl.short_code}`} 
+                  href={`${import.meta.env.VITE_API_URL}/${selectedUrl.short_code}`}
                   target="_blank" 
                   rel="noreferrer"
                   style={{ textDecoration: 'none', color: 'blue', fontSize: '0.9rem' }}
