@@ -27,11 +27,10 @@ ChartJS.register(
 
 interface AnalyticsChartsProps {
   data: any;
-  urlId: number;
   onAIOverview: (graphType: string) => void;
 }
 
-export const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ data, urlId, onAIOverview }) => {
+export const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ data, onAIOverview }) => {
   // Chart 1: Clicks Over Time
   const clicksOverTimeData = {
     labels: data.clicks_over_time.map((d: any) => d.date),

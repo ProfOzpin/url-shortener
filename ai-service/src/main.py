@@ -6,7 +6,9 @@ import os
 import logging
 from .database import get_db, get_basic_stats, get_top_referrers
 from .analytics import generate_ai_insight
-from .models import AICreateRequest, AICreateResponse, AnalyticsData
+from .models import AICreateRequest, AICreateResponse, AnalyticsData, GraphInsightRequest, GraphInsightResponse, ChatRequest, ChatResponse
+from .analytics import generate_ai_insight, generate_graph_insight, generate_ai_chat_response
+
 from dotenv import load_dotenv
 logger = logging.getLogger(__name__)
 
@@ -49,3 +51,24 @@ def get_analytics_data(
         # Log the error appropriately in a real application
         logger.error(f"Analytics error for url_id {url_id}", exc_info=False)
         raise HTTPException(status_code=500, detail="Failed to retrieve analytics data")
+    
+@app.post("/ai/graph-insight", response_model=GraphInsightResponse)
+def graph_insight(
+    request_data: GraphInsightRequest,
+    db: Session = Depends(get_db),
+):
+    insight = generate_graph_insight(request_data.url_id, request_data.graph_type, db)
+    return GraphInsightResponse(insight=insight)
+
+@app.post("/ai/chat", response_model=ChatResponse)
+def ai_chat(
+    request_data: ChatRequest,
+    db: Session = Depends(get_db),
+):
+    response = generate_ai_chat_response(
+        request_data.url_id,
+        request_data.message,
+        request_data.context,
+        db,
+    )
+    return ChatResponse(response=response)

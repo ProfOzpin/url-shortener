@@ -6,7 +6,7 @@ class AnalyticsData(BaseModel):
     total_clicks: int
     clicks_over_time: List[dict]
     top_referrers: List[dict]
-    
+
 class AICreateRequest(BaseModel):
     url_id: int
 
@@ -28,3 +28,20 @@ class EnrichedVisit(BaseModel):
     os: Optional[str] = None
     browser: Optional[str] = None
     geolocation: Optional[GeoInfo] = None
+
+class GraphInsightRequest(BaseModel):
+    url_id: int
+    graph_type: str
+
+class GraphInsightResponse(BaseModel):
+    insight: str
+    generated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class ChatRequest(BaseModel):
+    url_id: int
+    message: str
+    context: Optional[str] = None
+
+class ChatResponse(BaseModel):
+    response: str
+    generated_at: datetime = Field(default_factory=datetime.utcnow)

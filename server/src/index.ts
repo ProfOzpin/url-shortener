@@ -140,6 +140,87 @@ app.get('/api/urls', authenticateToken, async (req: AuthRequest, res) => {
     }
 });
 
+// ADVANCED ANALYTICS ENDPOINT
+app.get('/api/analytics/:url_id', authenticateToken, async (req: AuthRequest, res) => {
+  const { url_id } = req.params;
+  const userId = req.user?.id;
+
+  try {
+    // Security: ensure URL belongs to user
+    const verify = await query('SELECT id FROM urls WHERE id = $1 AND user_id = $2', [url_id, userId]);
+    if (verify.rows.length === 0) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    // Proxy to Python AI service (which already has /analytics/{url_id})
+    const response = await axios.get(
+      `${AI_SERVICE_URL}/analytics/${url_id}`,
+      { timeout: 10000 }
+    );
+
+    res.json(response.data);
+  } catch (err) {
+    console.error('Advanced analytics error:', err);
+    res.status(500).json({ error: 'Failed to fetch analytics data' });
+  }
+});
+
+// GRAPH-SPECIFIC AI OVERVIEW
+app.post('/api/ai/graph-insight', authenticateToken, async (req: AuthRequest, res) => {
+  const { url_id, graph_type } = req.body;
+  const userId = req.user?.id;
+
+  if (!url_id || !graph_type) {
+    return res.status(400).json({ error: 'Missing url_id or graph_type' });
+  }
+
+  try {
+    const verify = await query('SELECT id FROM urls WHERE id = $1 AND user_id = $2', [url_id, userId]);
+    if (verify.rows.length === 0) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    const response = await axios.post(
+      `${AI_SERVICE_URL}/ai/graph-insight`,
+      { url_id, graph_type },
+      { timeout: 20000 }
+    );
+
+    res.json(response.data);
+  } catch (err) {
+    console.error('Graph insight AI error:', err);
+    res.status(500).json({ error: 'Failed to generate graph insight' });
+  }
+});
+
+// Advanced analytics chat endpoint
+app.post('/api/ai/chat', authenticateToken, async (req: AuthRequest, res) => {
+  const { url_id, message, context } = req.body;
+  const userId = req.user?.id;
+
+  if (!url_id || !message) {
+    return res.status(400).json({ error: 'Missing url_id or message' });
+  }
+
+  try {
+    const verify = await query('SELECT id FROM urls WHERE id = $1 AND user_id = $2', [url_id, userId]);
+    if (verify.rows.length === 0) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    const response = await axios.post(
+      `${AI_SERVICE_URL}/ai/chat`,
+      { url_id, message, context: context || 'general' },
+      { timeout: 20000 }
+    );
+
+    res.json(response.data);
+  } catch (err) {
+    console.error('AI chat error:', err);
+    res.status(500).json({ error: 'Failed to process chat message' });
+  }
+});
+
 app.get('/:code', async (req, res) => {
   const { code } = req.params;
 

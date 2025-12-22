@@ -20,7 +20,7 @@ export const AIChatbox: React.FC<AIChatboxProps> = ({ urlId, context, onClose })
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (context && context !== 'general') {
+    if (context && typeof context === 'object') {
       // Auto-fetch AI overview for specific graph
       fetchGraphInsight(context.graph);
     }
@@ -51,11 +51,20 @@ export const AIChatbox: React.FC<AIChatboxProps> = ({ urlId, context, onClose })
     setLoading(true);
 
     try {
+    
+      const effectiveContext =
+        context === null
+            ? 'general'
+            : typeof context === 'object'
+            ? context.graph
+            : context;
+
       const { data } = await api.post('/ai/chat', {
         url_id: urlId,
         message: userMessage,
-        context: typeof context === 'object' ? context.graph : 'general',
+        context: effectiveContext,
       });
+
       setMessages(prev => [...prev, { role: 'ai', content: data.response }]);
     } catch (err) {
       setMessages(prev => [...prev, { role: 'ai', content: 'Error: Could not process your request.' }]);

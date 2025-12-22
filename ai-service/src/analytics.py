@@ -8,7 +8,7 @@ from datetime import datetime
 from typing import List, Dict, Any, Optional
 
 from .database import get_db, get_raw_visits, get_basic_stats, get_top_referrers
-from .models import EnrichedVisit, GeoInfo, AICreateRequest, AICreateResponse
+from .models import EnrichedVisit, GeoInfo, AICreateRequest, AICreateResponse, GraphInsightRequest, GraphInsightResponse, ChatRequest, ChatResponse
 
 # Config
 GEOIP_DB_PATH = os.getenv("GEOIP_DB_PATH", "./GeoLite2-City.mmdb") # Path to GeoLite2 City DB
@@ -194,3 +194,101 @@ def generate_ai_insight(url_id: int, db: Session) -> str:
         return f"Error calling AI API: {e}"
     except Exception as e:
         return f"An unexpected error occurred during AI processing: {e}"
+
+def _build_common_summary(url_id: int, db: Session) -> str:
+  """
+  Reuse your existing logic to build a textual summary for the URL.
+  """
+  raw_visits_list = get_raw_visits(db, url_id, limit=500)
+  if not raw_visits_list:
+      return "No visit data available."
+
+  enriched_visits = enrich_visit_data(raw_visits_list)
+  df = pd.DataFrame([visit.model_dump() for visit in enriched_visits])
+
+  total_clicks_from_db, clicks_over_time_db = get_basic_stats(db, url_id)
+  top_referrers_db = get_top_referrers(db, url_id)
+
+  summary_parts = []
+  summary_parts.append(f"Total clicks: {total_clicks_from_db}")
+
+  if clicks_over_time_db:
+      hourly_df = pd.DataFrame(clicks_over_time_db)
+      hourly_df['timestamp'] = pd.to_datetime(hourly_df['timestamp'])
+      hourly_df['day'] = hourly_df['timestamp'].dt.date
+      daily_clicks = hourly_df.groupby('day')['count'].sum()
+      if not daily_clicks.empty:
+          most_active_day = daily_clicks.idxmax()
+          summary_parts.append(f"Most active day: {most_active_day}")
+  if top_referrers_db:
+      top_3_referrers = ", ".join([f"{r['referer']} ({r['count']} clicks)" for r in top_referrers_db[:3]])
+      summary_parts.append(f"Top referrers: {top_3_referrers}")
+
+  if 'device_type' in df and not df.empty:
+      device_counts = df['device_type'].value_counts().to_dict()
+      summary_parts.append(f"Device breakdown: {device_counts}")
+  if 'os' in df and not df.empty:
+      os_counts = df['os'].value_counts().to_dict()
+      summary_parts.append(f"OS breakdown: {os_counts}")
+  if 'browser' in df and not df.empty:
+      browser_counts = df['browser'].value_counts().to_dict()
+      summary_parts.append(f"Browser breakdown: {browser_counts}")
+
+  summary_parts.append("Geolocation is unavailable because IPs are hashed for privacy.")
+  return ". ".join(summary_parts)
+
+def _call_mistral(prompt: str) -> str:
+  headers = {
+      "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+      "Content-Type": "application/json",
+  }
+  payload = {
+      "model": MISTRAL_MODEL,
+      "messages": [{"role": "user", "content": prompt}],
+  }
+  try:
+      resp = requests.post(OPENROUTER_API_URL, headers=headers, json=payload)
+      resp.raise_for_status()
+      data = resp.json()
+      content = (
+          data.get("choices", [{}])[0]
+          .get("message", {})
+          .get("content")
+      )
+      return content.strip() if content else "AI returned an empty response."
+  except requests.RequestException as e:
+      return f"Error calling AI API: {e}"
+  except Exception as e:
+      return f"Unexpected AI error: {e}"
+
+def generate_graph_insight(url_id: int, graph_type: str, db: Session) -> str:
+  summary = _build_common_summary(url_id, db)
+  prompt = f"""
+You are an analytics expert. A user is viewing the graph: {graph_type} for a specific shortened URL.
+
+Overall data summary:
+{summary}
+
+Task:
+1. Focus ONLY on insights relevant to the graph type "{graph_type}".
+2. Describe the pattern, anomalies, and possible causes.
+3. Suggest 1–2 concrete actions the user could take.
+
+Respond in 3–5 concise sentences.
+"""
+  return _call_mistral(prompt)
+
+def generate_ai_chat_response(url_id: int, message: str, context: str | None, db: Session) -> str:
+  summary = _build_common_summary(url_id, db)
+  prompt = f"""
+You are an AI assistant helping a user understand analytics for a shortened URL.
+
+Analytics summary:
+{summary}
+
+User context: {context or "general"}
+User question: {message}
+
+Answer clearly and concretely. Refer to the data patterns when possible. Keep it under 8 sentences.
+"""
+  return _call_mistral(prompt)
