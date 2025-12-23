@@ -313,8 +313,8 @@ def get_full_analytics(url_id: int, db: Session) -> dict:
 
     total_clicks = len(df)
     
-    df['visited_at'] = pd.to_datetime(df['visited_at'])
-    df['date'] = df['visited_at'].dt.date
+    df['clicked_at'] = pd.to_datetime(df['clicked_at'])
+    df['date'] = df['clicked_at'].dt.date
     clicks_over_time = (
         df.groupby('date')
         .size()
@@ -336,7 +336,7 @@ def get_full_analytics(url_id: int, db: Session) -> dict:
     referrer_counts.columns = ['referrer', 'count']
     referrer_breakdown = referrer_counts.head(10).to_dict('records')
     
-    df['hour'] = df['timestamp'].dt.hour
+    df['hour'] = df['clicked_at'].dt.hour
     hourly_counts = df.groupby('hour').size().reset_index(name='count')
     hourly_pattern = hourly_counts.to_dict('records')
     
