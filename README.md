@@ -2,25 +2,65 @@
 
 A full-stack URL shortener with advanced analytics and AI-powered insights. Built with React, Node.js, FastAPI, and PostgreSQL.
 
-![Tech Stack](https://img.shields.io/badge/React-TypeScript-blue)
-![Backend](https://img.shields.io/badge/Node.js-Express-green)
-![AI](https://img.shields.io/badge/Python-FastAPI-yellow)
-![Database](https://img.shields.io/badge/PostgreSQL-16-336791)
-![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED)
+## Key Considerations
 
-## 📋 Table of Contents
+### Development Approach
 
-- [Features](#features)
-- [Architecture](#architecture)
-- [Tech Stack](#tech-stack)
-- [Prerequisites](#prerequisites)
-- [Quick Start with Docker](#quick-start-with-docker)
-- [Local Development Setup](#local-development-setup)
-- [Testing](#testing)
-- [Project Structure](#project-structure)
-- [API Documentation](#api-documentation)
-- [Environment Variables](#environment-variables)
-- [Troubleshooting](#troubleshooting)
+This project follows a microservices architecture with clear separation of concerns across three independent services. The decision to split functionality into dedicated services enables independent scaling, technology flexibility, and easier maintenance. Each service communicates via RESTful APIs, with the backend acting as the orchestration layer between the frontend and AI service.
+
+### Key Design Decisions
+
+1. Privacy-First Analytics
+- IP addresses are hashed before storage using bcrypt, making them irreversible while still allowing unique visitor counting
+- Trade-off: Cannot provide precise geolocation data, but maintains user privacy and GDPR compliance
+- User agent parsing happens server-side to extract device/browser information without exposing raw data
+
+2. AI Integration Strategy
+- Leverages OpenRouter API with Mistral AI (free tier) rather than building custom ML models
+- Trade-off: Depends on external API availability and rate limits, but significantly reduces complexity and infrastructure costs
+- Provides three AI features: general insights, graph-specific analysis, and interactive chat
+- Cost-effective for MVP and small to medium traffic
+
+3. Technology Stack Choices
+
+| Technology | Rationale | Trade-offs |
+|------------|-----------|------------|
+| **React + TypeScript** | Type safety, component reusability, excellent ecosystem | Steeper learning curve vs vanilla JS |
+| **Node.js + Express** | Fast I/O operations, JavaScript full-stack consistency | Single-threaded (mitigated by clustering in production) |
+| **FastAPI** | High performance Python, automatic API docs, async support | Python dependency management complexity |
+| **PostgreSQL** | ACID compliance, robust for analytics queries, JSON support | Vertical scaling limitations vs NoSQL |
+| **Docker** | Consistent environments, easy deployment, service isolation | Additional layer of complexity for local dev |
+
+4. Authentication & Security
+- JWT-based stateless authentication for scalability
+- Passwords hashed with bcrypt (10 rounds)
+- CORS configured to only accept requests from known origins
+- SQL injection prevention through parameterized queries
+- Trade-off: No session revocation without additional infrastructure (Redis)
+
+5. Analytics Architecture
+- Dual database approach: Backend handles click tracking, AI service reads for analysis
+- Pandas DataFrames for flexible data transformations and aggregations
+- Hourly/daily patterns computed on-demand rather than pre-aggregated
+- Trade-off: Slower for high-traffic URLs but simpler to implement and maintain
+
+### Assumptions
+
+1. Traffic Volume: Designed for small to medium traffic (up to 10,000 URLs, 1M clicks/month per URL)
+2. AI Response Time: Users expect AI insights within 3-5 seconds (acceptable UX trade-off)
+3. Data Retention: Analytics data stored indefinitely; production would need data lifecycle policies
+4. Browser Support: Modern browsers with ES6+ support (Chrome 90+, Firefox 88+, Safari 14+)
+5. Deployment: Single-server deployment via Docker Compose; production would need Kubernetes or similar orchestration
+6. API Key Security: OpenRouter API key stored in environment variables; production would use secrets management (HashiCorp Vault, AWS Secrets Manager)
+
+### Known Limitations & Future Improvements
+
+Current Limitations:
+- No geographic analytics due to IP hashing (privacy vs functionality trade-off)
+- AI insights limited to 500 most recent visits for performance
+- No real-time analytics updates (requires WebSocket implementation)
+- Single database instance (no replication or sharding)
+- No rate limiting on public endpoints
 
 ## ✨ Features
 
