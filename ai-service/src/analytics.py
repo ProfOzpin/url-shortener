@@ -80,10 +80,6 @@ def enrich_visit_data(raw_visits: List[Any]) -> List[EnrichedVisit]:
     enriched_data = []
     for visit in raw_visits:
         ua_parsed = parse_user_agent(visit.user_agent)
-        
-        # REVISIT: GeoIP lookup cannot be done with a hash.
-        # If you MUST geolocate, you cannot hash the IP.
-        # For now, we return None for geolocation.
         geo_info = get_geolocation(visit.visitor_ip_hash) 
 
         enriched_visit = EnrichedVisit(
@@ -93,7 +89,8 @@ def enrich_visit_data(raw_visits: List[Any]) -> List[EnrichedVisit]:
             device_type=ua_parsed["device_type"],
             os=ua_parsed["os"],
             browser=ua_parsed["browser"],
-            geolocation=geo_info # This will be None based on current logic
+            referer=visit.referer,  # ← ADD THIS LINE
+            geolocation=geo_info
         )
         enriched_data.append(enriched_visit)
     return enriched_data

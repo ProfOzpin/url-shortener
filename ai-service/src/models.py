@@ -23,10 +23,10 @@ class EnrichedVisit(BaseModel):
     id: int
     url_id: int
     clicked_at: datetime
-    # Derived fields
     device_type: Optional[str] = None
     os: Optional[str] = None
     browser: Optional[str] = None
+    referer: Optional[str] = None
     geolocation: Optional[GeoInfo] = None
 
 class GraphInsightRequest(BaseModel):
