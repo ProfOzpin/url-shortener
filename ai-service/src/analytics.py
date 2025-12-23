@@ -313,8 +313,8 @@ def get_full_analytics(url_id: int, db: Session) -> dict:
 
     total_clicks = len(df)
     
-    df['timestamp'] = pd.to_datetime(df['timestamp'])
-    df['date'] = df['timestamp'].dt.date
+    df['visited_at'] = pd.to_datetime(df['visited_at'])
+    df['date'] = df['visited_at'].dt.date
     clicks_over_time = (
         df.groupby('date')
         .size()
