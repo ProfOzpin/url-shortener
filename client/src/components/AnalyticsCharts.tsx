@@ -81,7 +81,7 @@ export const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ data, onAIOver
     }],
   };
 
-  return (
+    return (
     <div className="charts-grid">
       <div className="chart-card">
         <div className="chart-header">
@@ -90,7 +90,9 @@ export const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ data, onAIOver
             ✨ AI Overview
           </button>
         </div>
-        <Line data={clicksOverTimeData} options={{ responsive: true, maintainAspectRatio: false }} />
+        <div style={{ height: '250px' }}> {/* ← WRAP CHART */}
+          <Line data={clicksOverTimeData} options={{ responsive: true, maintainAspectRatio: false }} />
+        </div>
       </div>
 
       <div className="chart-card">
@@ -100,7 +102,9 @@ export const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ data, onAIOver
             ✨ AI Overview
           </button>
         </div>
-        <Pie data={deviceData} options={{ responsive: true, maintainAspectRatio: false }} />
+        <div style={{ height: '250px' }}> {/* ← WRAP CHART */}
+          <Pie data={deviceData} options={{ responsive: true, maintainAspectRatio: false }} />
+        </div>
       </div>
 
       <div className="chart-card">
@@ -110,7 +114,9 @@ export const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ data, onAIOver
             ✨ AI Overview
           </button>
         </div>
-        <Bar data={browserData} options={{ responsive: true, maintainAspectRatio: false }} />
+        <div style={{ height: '250px' }}> {/* ← WRAP CHART */}
+          <Bar data={browserData} options={{ responsive: true, maintainAspectRatio: false }} />
+        </div>
       </div>
 
       <div className="chart-card">
@@ -120,7 +126,9 @@ export const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ data, onAIOver
             ✨ AI Overview
           </button>
         </div>
-        <Doughnut data={referrerData} options={{ responsive: true, maintainAspectRatio: false }} />
+        <div style={{ height: '250px' }}> {/* ← WRAP CHART */}
+          <Doughnut data={referrerData} options={{ responsive: true, maintainAspectRatio: false }} />
+        </div>
       </div>
 
       <div className="chart-card full-width">
@@ -130,7 +138,9 @@ export const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ data, onAIOver
             ✨ AI Overview
           </button>
         </div>
-        <Bar data={hourlyData} options={{ responsive: true, maintainAspectRatio: false }} />
+        <div style={{ height: '250px' }}> {/* ← WRAP CHART */}
+          <Bar data={hourlyData} options={{ responsive: true, maintainAspectRatio: false }} />
+        </div>
       </div>
 
       <div className="stats-summary">
