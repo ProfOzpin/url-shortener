@@ -289,9 +289,13 @@ app.post('/api/insight', authenticateToken, insightLimiter, async (req: AuthRequ
     }
 });
 
-// Start Server
-initDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+// Start Server (only if not in test mode)
+if (process.env.NODE_ENV !== 'test') {
+  initDB().then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
   });
-});
+}
+
+export default app;

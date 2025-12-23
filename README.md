@@ -1,195 +1,396 @@
-    
-# AI-Powered URL Shortener
+# 🔗 AI-Powered URL Shortener
 
-A hybrid microservices application that provides URL shortening, high-performance redirection, and AI-driven traffic insights.
+A full-stack URL shortener with advanced analytics and AI-powered insights. Built with React, Node.js, FastAPI, and PostgreSQL.
 
-## Project Structure
+![Tech Stack](https://img.shields.io/badge/React-TypeScript-blue)
+![Backend](https://img.shields.io/badge/Node.js-Express-green)
+![AI](https://img.shields.io/badge/Python-FastAPI-yellow)
+![Database](https://img.shields.io/badge/PostgreSQL-16-336791)
+![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED)
+
+## 📋 Table of Contents
+
+- [Features](#features)
+- [Architecture](#architecture)
+- [Tech Stack](#tech-stack)
+- [Prerequisites](#prerequisites)
+- [Quick Start with Docker](#quick-start-with-docker)
+- [Local Development Setup](#local-development-setup)
+- [Testing](#testing)
+- [Project Structure](#project-structure)
+- [API Documentation](#api-documentation)
+- [Environment Variables](#environment-variables)
+- [Troubleshooting](#troubleshooting)
+
+## ✨ Features
+
+### Core Features
+- ⚡ **Lightning-fast URL shortening** with custom short codes
+- 🔐 **Secure authentication** using JWT tokens
+- 📊 **Comprehensive analytics** tracking clicks, devices, browsers, and referrers
+- 🤖 **AI-powered insights** using Mistral AI via OpenRouter
+- 💬 **Interactive AI chatbot** for analytics queries
+- 📈 **Real-time charts** with Recharts visualization
+- 🔒 **Privacy-focused** with IP hashing
+
+### Analytics Features
+- Click tracking over time
+- Device breakdown (Desktop/Mobile)
+- Browser and OS detection
+- Referrer source tracking
+- Hourly traffic patterns
+- AI-generated insights for each graph
+
+## 🛠️ Tech Stack
+
+### Frontend
+- **React 18** with TypeScript
+- **Vite** for blazing-fast builds
+- **Recharts** for data visualization
+- **Axios** for API calls
+- **React Router** for navigation
+
+### Backend
+- **Node.js 20** with Express
+- **TypeScript** for type safety
+- **PostgreSQL** with node-postgres
+- **JWT** for authentication
+- **bcrypt** for password hashing
+
+### AI Service
+- **Python 3.11** with FastAPI
+- **Pandas** for data analysis
+- **SQLAlchemy** for database ORM
+- **OpenRouter API** (Mistral AI)
+- **User-agent parsing** for device detection
+
+### DevOps
+- **Docker** & **Docker Compose**
+- **Nginx** for frontend serving
+- **Multi-stage builds** for optimization
+- **pytest** for Python testing
+
+## 📦 Prerequisites
+
+- **Docker** 20.10+ and **Docker Compose** 1.29+
+- **Git** for cloning the repository
+- **4GB RAM** minimum
+- Ports **80**, **3000**, **5432**, **8001** available
+
+For local development without Docker:
+- **Node.js 20+**
+- **Python 3.11+**
+- **PostgreSQL 16+**
+
+## 🚀 Quick Start with Docker
+
+### 1. Clone the Repository
 
 ```text
-url_shortener/
-├── docker-compose.yml      # Orchestrates the PostgreSQL Database
-├── server/                 # Node.js + Express (Core Backend)
-│   ├── .env
-│   ├── package.json
-│   ├── tsconfig.json
-│   └── src/
-│       ├── db.ts           # Database connection & schema init
-│       └── index.ts        # Auth, URL CRUD, Redirection logic
-├── ai-service/             # Python + FastAPI (AI & Analytics)
-│   ├── .env
-│   ├── requirements.txt
-│   └── src/
-│       ├── main.py         # FastAPI entry point
-│       ├── analytics.py    # Logic for aggregating data & calling LLM
-│       ├── database.py     # SQLAlchemy setup
-│       └── models.py       # Pydantic & SQLAlchemy models
-└── client/                 # React + Vite (Frontend)
-    ├── index.html
-    └── src/
-        ├── api.ts          # Axios setup with JWT interceptors
-        ├── index.css       # Global design system
-        ├── App.tsx         # Routing logic
-        └── pages/
-            ├── Auth.tsx
-            └── Dashboard.tsx
+git clone https://github.com/yourusername/url-shortener.git
+cd url-shortener
+```
 
-```  
+### 2. Set Up Environment Variables
 
-## Architecture
+Copy the example environment file
 
-This project uses a hybrid architecture to leverage the best tools for specific tasks:
+```text
+cp .env.example .env
+```
+Edit with your preferred editor
 
-    Frontend (React + Vite): A clean, minimalist dashboard for managing links and viewing insights.
+**Required environment variables:**
 
-    Core Backend (Node.js + Express): Handles high-concurrency tasks: Authentication, URL creation, and fast HTTP redirects.
+Database
+```
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=your_secure_password_here
+POSTGRES_DB=urlshortener
+```
 
-    Analytics Service (Python + FastAPI): Handles data-intensive tasks: Processing logs, running analytics queries, and interfacing with the LLM (Mistral via OpenRouter).
+JWT Secret (generate with: openssl rand -hex 32)
+```
+JWT_SECRET=your_jwt_secret_at_least_32_characters_long
+```
+AI Service (get free key from https://openrouter.ai/)
+```
+OPENROUTER_API_KEY=your_openrouter_api_key
+```
+Frontend
+```
+VITE_API_URL=http://localhost:3000
+FRONTEND_URL=http://localhost
+```
 
-    Database (PostgreSQL): A shared persistence layer running in Docker.
+### 3. Build and Run
 
-Tech Stack
+Build all services (first time only, takes 5-10 minutes)
+```
+docker-compose build
+Start all services in detached mode
 
-    Frontend: React, TypeScript, Vite, CSS Modules.
-
-    Core API: Node.js, Express, pg (Postgres driver), JWT Auth.
-
-    AI Service: Python 3.10+, FastAPI, SQLAlchemy, Pandas.
-
-    Database: PostgreSQL 15 (Dockerized).
-
-    AI Model: Mistral (via OpenRouter API).
-
-Setup Instructions
-Prerequisites
-
-    Node.js (v18+)
-
-    Python (v3.10+)
-
-    Docker & Docker Compose
-
-1. Start the Database
-
-From the root directory:
-```code Bash
 docker-compose up -d
-```
-  
 
-2. Configure Environment Variables
-
-Ensure you have the following .env files created:
-
-server/.env (Node.js)
-```code Env  
-PORT=3000
-DATABASE_URL=postgres://YOUR_DB_USER:YOUR_STRONG_PASSWORD@host:5432/dbname
-JWT_SECRET={KEY}
-```
-  
-
-ai-service/.env (Python)
-```code Env   
-# Note: SQLAlchemy requires 'postgresql://', Node uses 'postgres://'
-DATABASE_URL=postgres://YOUR_DB_USER:YOUR_STRONG_PASSWORD@host:5432/dbname
-OPENROUTER_API_KEY=sk-or-v1-YOUR-KEY-HERE
+docker-compose logs -f
 ```
 
-3. Run the Core Backend (Node.js)
-```code Bash 
+### 4. Access the Application
+
+- **Frontend**: http://localhost
+- **Backend API**: http://localhost:3000
+- **AI Service Docs**: http://localhost:8001/docs
+- **Database**: localhost:5432
+
+### 5. Stop the Application
+
+Stop all services
+```
+docker-compose down
+Stop and remove volumes (clean slate)
+
+docker-compose down -v
+```
+
+## 💻 Local Development Setup
+
+### Backend (Node.js)
+```
 cd server
-npm install
-npm run dev
-```
-  
-Runs on: http://localhost:3000
+# Install dependencies
 
-4. Run the AI Service (Python)
-```code Bash 
+npm install
+# Set up environment
+
+cp .env.example .env
+# Edit .env with your database credentials
+# Run database migrations (if applicable)
+npm run migrate
+# Start development server
+
+npm run dev
+# Server runs on [**http://localhost:3000**](http://localhost:3000)
+```
+
+### AI Service (Python)
+```
 cd ai-service
-python3 -m venv .venv
-source .venv/bin/activate
+# Create virtual environment
+
+python -m venv .venv
+source .venv/bin/activate # On Windows: .venv\Scripts\activate
+# Install dependencies
+
 pip install -r requirements.txt
+# Set up environment
+
+cp .env.example .env
+# Add your OPENROUTER_API_KEY
+# Start development server
+
 uvicorn src.main:app --reload --port 8001
 ```
-  
-Runs on: http://localhost:8001
 
-5. Run the Frontend (React)
-```code Bash    
+AI service runs on [**http://localhost:8001**](http://localhost:8001)
+
+### Frontend (React)
+```
 cd client
+# Install dependencies
+
 npm install
+# Set up environment
+
+cp .env.example .env
+# Edit VITE_API_URL if needed
+# Start development server
+
 npm run dev
 ```
-  
 
-Runs on: http://localhost:5173
-Usage Flow
+Frontend runs on [**http://localhost:5173**](http://localhost:5173)
 
-    Open the Frontend (http://localhost:5173).
+## 🧪 Testing
 
-    Sign Up for an account.
+### Backend Tests
+```
+cd server
+npm test
+# With coverage
 
-    Create a Short URL (e.g., shorten https://google.com).
+npm run test:coverage
+```
 
-    Generate Traffic:
+### AI Service Tests
+```
+cd ai-service
+source .venv/bin/activate
+# Run tests
 
-        Click the "Visit Link" button.
+pytest
+# With coverage
 
-        Open the short link on your phone (connected to the same Wi-Fi) to simulate mobile traffic.
+pytest --cov=src --cov-report=term-missing
+# Generate HTML coverage report
 
-        Open the link in Incognito mode.
+pytest --cov=src --cov-report=html
+```
 
-    Analyze: Click the "Analyze" button on the dashboard card.
+## 📁 Project Structure
+```
+url-shortener/
+├── client/ # React frontend
+│ ├── src/
+│ │ ├── pages/ # Page components
+│ │ │ ├── Dashboard.tsx
+│ │ │ ├── Analytics.tsx
+│ │ │ ├── Auth.tsx
+│ │ │ └── AIChatbox.tsx
+│ │ ├── App.tsx
+│ │ └── main.tsx
+│ ├── Dockerfile # Multi-stage build with Nginx
+│ ├── nginx.conf # Nginx configuration
+│ └── package.json
+│
+├── server/ # Node.js backend
+│ ├── src/
+│ │ ├── index.ts # Express server setup
+│ │ └── db.ts # Database connection
+│ ├── Dockerfile
+│ ├── tsconfig.json
+│ └── package.json
+│
+├── ai-service/ # FastAPI AI service
+│ ├── src/
+│ │ ├── main.py # FastAPI routes
+│ │ ├── analytics.py # AI logic & data processing
+│ │ ├── models.py # Pydantic models
+│ │ └── database.py # SQLAlchemy setup
+│ ├── tests/
+│ │ ├── test_analytics.py
+│ │ ├── test_api.py
+│ │ └── conftest.py
+│ ├── Dockerfile
+│ ├── requirements.txt
+│ └── pytest.ini
+│
+├── docker-compose.yml # Orchestrates all services
+├── .env # Environment variables (gitignored)
+├── .env.example # Example environment file
+└── README.md
+```
 
-    The Node.js server verifies your ownership and proxies the request to the Python service, which aggregates the data and uses Mistral AI to generate a text insight.
+## 📡 API Documentation
 
-Security Measures
-1. "React2Shell" & RCE Prevention
+### Backend API Endpoints
 
-    Input Validation: The Python service uses Pydantic to strictly validate all incoming payloads.
+#### Authentication
+```
+POST /api/auth/register - Register new user
+POST /api/auth/login - Login user
+GET /api/auth/me - Get current user
+```
 
-    No Shell Execution: The application never uses os.system, subprocess.call(shell=True), or eval() on user inputs.
+#### URLs
+```
+POST /api/urls - Create shortened URL
+GET /api/urls - Get user's URLs
+GET /api/urls/:id - Get specific URL
+DELETE /api/urls/:id - Delete URL
+GET /:shortCode - Redirect to original URL
+```
 
-    Isolation: The AI service is internal. The Frontend cannot call it directly; requests must pass through the Node.js authentication layer first.
+### AI Service API Endpoints
 
-2. SQL Injection & XSS
+#### Analytics
+```
+GET /analytics/{url_id} - Get complete analytics data
+POST /ai/insight - Generate AI insight
+POST /ai/graph-insight - Get graph-specific insight
+POST /ai/chat - Chat with AI about analytics
+```
 
-    Node.js: Uses parameterized queries ($1, $2) via the pg library.
+Full API documentation available at:
+- **Swagger UI**: http://localhost:8001/docs
+- **ReDoc**: http://localhost:8001/redoc
 
-    Python: Uses SQLAlchemy ORM to abstract SQL execution.
+## 🔧 Environment Variables
 
-    XSS: The API returns strictly application/json. No server-side HTML rendering occurs. React automatically escapes content in the View layer.
+### Required Variables
 
-3. Privacy
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `POSTGRES_USER` | PostgreSQL username | `postgres` |
+| `POSTGRES_PASSWORD` | PostgreSQL password | `secure_password_123` |
+| `POSTGRES_DB` | Database name | `urlshortener` |
+| `JWT_SECRET` | JWT signing key (32+ chars) | Generated with `openssl rand -hex 32` |
+| `OPENROUTER_API_KEY` | OpenRouter API key | `sk-or-v1-...` |
+| `VITE_API_URL` | Backend API URL | `http://localhost:3000` |
+| `FRONTEND_URL` | Frontend URL for CORS | `http://localhost` |
 
-    IP Anonymization: IP addresses are hashed using SHA-256 before being stored in the database to ensure user privacy (GDPR compliance approach).
+### Optional Variables
 
-Approach & Trade-offs
-Architecture: Hybrid Node + Python
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `PORT` | Backend server port | `3000` |
+| `NODE_ENV` | Node environment | `development` |
+| `GEOIP_DB_PATH` | Path to GeoLite2 database | `./GeoLite2-City.mmdb` |
 
-    Decision: Split the redirection engine from the analytics engine.
+## 🐛 Troubleshooting
 
-    Reason: Node.js is event-driven and non-blocking, making it superior for handling high-throughput redirects. Python is the industry standard for Data Science and LLM integration.
+### Port Already in Use
+```
+# Check what's using the port
 
-    Trade-off: Increases operational complexity (running two servers) in exchange for optimal performance in both domains.
+sudo lsof -i :80
+sudo lsof -i :3000
+sudo lsof -i :8001
+# Kill the process or change ports in docker-compose.yml
+```
 
-Data Collection: Async Logging
+### Database Connection Issues
+```
+# Check if PostgreSQL container is running
 
-    Decision: The Node.js redirect endpoint performs a "fire-and-forget" INSERT into the visits table.
+docker-compose ps
+# View database logs
 
-    Reason: We strictly prioritized the User Experience. The user should not wait for the DB write or Analytics processing to be redirected.
+docker-compose logs postgres
+# Reset database
 
-    Trade-off: In a catastrophic server crash, a fraction of a second of analytics data might be lost, but the user redirection speed is preserved.
+docker-compose down -v
+docker-compose up -d
+```
 
-Analytics: IP Hashing vs. Geolocation
+### Docker Build Errors
+```
+# Clean rebuild without cache
 
-    Decision: We hash IPs immediately.
+docker-compose down
+docker-compose build --no-cache
+docker-compose up -d
+```
 
-    Trade-off: We respect privacy (NFR requirement), but this prevents accurate server-side Geolocation (which requires raw IPs). The AI insight focuses on Headers (Device, OS, Browser) and Time patterns instead.
+### AI Service Errors
+```
+# Check AI service logs
 
-AI Integration
+docker-compose logs ai-service
+# Verify OPENROUTER_API_KEY is set correctly
 
-    Decision: Use a proxy route in Node.js to call Python.
+docker-compose exec ai-service env | grep OPENROUTER
+```
 
-    Reason: Keeps the Python service private and allows the Node.js service to handle Rate Limiting and Authorization centrally.
+### Frontend Not Loading
+```
+# Check if client container is running
+
+docker ps | grep urlshortener-client
+# View nginx logs
+
+docker-compose logs client
+# Rebuild client
+
+docker-compose build client
+docker-compose up -d client
+``` 
