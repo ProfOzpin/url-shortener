@@ -105,8 +105,13 @@ app.post('/api/auth/login', authLimiter, async (req, res) => {
 });
 
 app.post('/api/shorten', authenticateToken, async (req: AuthRequest, res) => {
-  const { url } = req.body;
+  let { url } = req.body;
   const userId = req.user?.id;
+
+  // Auto-prepend https:// if missing protocol
+  if (url && !url.match(/^https?:\/\//i)) {
+    url = `https://${url}`;
+  }
 
   // Basic Validation
   if (!url || !url.startsWith('http')) {
