@@ -45,3 +45,31 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     response: str
     generated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class ClickOverTime(BaseModel):
+    date: str  # or timestamp
+    count: int
+
+class DeviceBreakdown(BaseModel):
+    device: str
+    count: int
+
+class BrowserBreakdown(BaseModel):
+    browser: str
+    count: int
+
+class ReferrerBreakdown(BaseModel):
+    referrer: str
+    count: int
+
+class HourlyPattern(BaseModel):
+    hour: int
+    count: int
+
+class AnalyticsData(BaseModel):
+    total_clicks: int
+    clicks_over_time: List[ClickOverTime]
+    device_breakdown: List[DeviceBreakdown]
+    browser_breakdown: List[BrowserBreakdown]
+    referrer_breakdown: List[ReferrerBreakdown]
+    hourly_pattern: List[HourlyPattern]

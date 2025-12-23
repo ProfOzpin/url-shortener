@@ -98,8 +98,6 @@ def enrich_visit_data(raw_visits: List[Any]) -> List[EnrichedVisit]:
         enriched_data.append(enriched_visit)
     return enriched_data
 
-# --- AI Insight Generation ---
-
 def generate_ai_insight(url_id: int, db: Session) -> str:
     raw_visits_list = get_raw_visits(db, url_id, limit=500) # Limit raw data for performance
     if not raw_visits_list:
@@ -292,3 +290,61 @@ User question: {message}
 Answer clearly and concretely. Refer to the data patterns when possible. Keep it under 8 sentences.
 """
   return _call_mistral(prompt)
+
+def get_full_analytics(url_id: int, db: Session) -> dict:
+    """
+    Returns complete analytics with device, browser, referrer, and hourly breakdowns.
+    """
+
+    raw_visits_list = get_raw_visits(db, url_id, limit=1000)
+    if not raw_visits_list:
+        return {
+            "total_clicks": 0,
+            "clicks_over_time": [],
+            "device_breakdown": [],
+            "browser_breakdown": [],
+            "referrer_breakdown": [],
+            "hourly_pattern": [],
+        }
+    
+    enriched_visits = enrich_visit_data(raw_visits_list)
+    df = pd.DataFrame([visit.model_dump() for visit in enriched_visits])
+    
+
+    total_clicks = len(df)
+    
+    df['timestamp'] = pd.to_datetime(df['timestamp'])
+    df['date'] = df['timestamp'].dt.date
+    clicks_over_time = (
+        df.groupby('date')
+        .size()
+        .reset_index(name='count')
+    )
+    clicks_over_time['date'] = clicks_over_time['date'].astype(str)
+    clicks_over_time_list = clicks_over_time.to_dict('records')
+    
+    device_counts = df['device_type'].value_counts().reset_index()
+    device_counts.columns = ['device', 'count']
+    device_breakdown = device_counts.to_dict('records')
+    
+    browser_counts = df['browser'].value_counts().reset_index()
+    browser_counts.columns = ['browser', 'count']
+    browser_breakdown = browser_counts.to_dict('records')
+    
+    df['referrer_clean'] = df['referer'].fillna('Direct')
+    referrer_counts = df['referrer_clean'].value_counts().reset_index()
+    referrer_counts.columns = ['referrer', 'count']
+    referrer_breakdown = referrer_counts.head(10).to_dict('records')
+    
+    df['hour'] = df['timestamp'].dt.hour
+    hourly_counts = df.groupby('hour').size().reset_index(name='count')
+    hourly_pattern = hourly_counts.to_dict('records')
+    
+    return {
+        "total_clicks": total_clicks,
+        "clicks_over_time": clicks_over_time_list,
+        "device_breakdown": device_breakdown,
+        "browser_breakdown": browser_breakdown,
+        "referrer_breakdown": referrer_breakdown,
+        "hourly_pattern": hourly_pattern,
+    }

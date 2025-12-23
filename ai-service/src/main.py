@@ -7,7 +7,7 @@ import logging
 from .database import get_db, get_basic_stats, get_top_referrers
 from .analytics import generate_ai_insight
 from .models import AICreateRequest, AICreateResponse, AnalyticsData, GraphInsightRequest, GraphInsightResponse, ChatRequest, ChatResponse
-from .analytics import generate_ai_insight, generate_graph_insight, generate_ai_chat_response
+from .analytics import generate_ai_insight, generate_graph_insight, generate_ai_chat_response, get_full_analytics
 
 from dotenv import load_dotenv
 logger = logging.getLogger(__name__)
@@ -39,18 +39,12 @@ def get_analytics_data(
     db: Session = Depends(get_db)
 ):
     try:
-        total_clicks, clicks_over_time = get_basic_stats(db, url_id)
-        top_referrers = get_top_referrers(db, url_id)
-        
-        return AnalyticsData(
-            total_clicks=total_clicks,
-            clicks_over_time=clicks_over_time,
-            top_referrers=top_referrers
-        )
+        analytics_dict = get_full_analytics(url_id, db)
+        return AnalyticsData(**analytics_dict)
     except Exception as e:
-        # Log the error appropriately in a real application
-        logger.error(f"Analytics error for url_id {url_id}", exc_info=False)
+        logger.error(f"Analytics error for url_id {url_id}: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to retrieve analytics data")
+
     
 @app.post("/ai/graph-insight", response_model=GraphInsightResponse)
 def graph_insight(
