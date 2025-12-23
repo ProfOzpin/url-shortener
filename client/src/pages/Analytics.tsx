@@ -120,7 +120,6 @@ export const Analytics: React.FC = () => {
           ) : analyticsData ? (
             <AnalyticsCharts 
               data={analyticsData} 
-              urlId={selectedUrl.id}
               onAIOverview={(graphType) => setAiContext({ graph: graphType })}
             />
           ) : (
