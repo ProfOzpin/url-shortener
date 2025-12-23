@@ -31,51 +31,52 @@ interface AnalyticsChartsProps {
 }
 
 export const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ data, onAIOverview }) => {
-  // Chart 1: Clicks Over Time
+  const clicks = data.clicks_over_time ?? [];
+  const devices = data.device_breakdown ?? [];
+  const browsers = data.browser_breakdown ?? [];
+  const referrers = data.referrer_breakdown ?? [];
+  const hourly = data.hourly_pattern ?? [];
+
   const clicksOverTimeData = {
-    labels: data.clicks_over_time.map((d: any) => d.date),
+    labels: clicks.map((d: any) => d.date ?? d.timestamp),
     datasets: [{
       label: 'Clicks',
-      data: data.clicks_over_time.map((d: any) => d.count),
+      data: clicks.map((d: any) => d.count),
       borderColor: 'rgb(75, 192, 192)',
       backgroundColor: 'rgba(75, 192, 192, 0.2)',
     }],
   };
 
-  // Chart 2: Device Breakdown
   const deviceData = {
-    labels: data.device_breakdown.map((d: any) => d.device),
+    labels: devices.map((d: any) => d.device),
     datasets: [{
-      data: data.device_breakdown.map((d: any) => d.count),
+      data: devices.map((d: any) => d.count),
       backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'],
     }],
   };
 
-  // Chart 3: Browser Breakdown
   const browserData = {
-    labels: data.browser_breakdown.map((d: any) => d.browser),
+    labels: browsers.map((d: any) => d.browser),
     datasets: [{
       label: 'Browser Usage',
-      data: data.browser_breakdown.map((d: any) => d.count),
+      data: browsers.map((d: any) => d.count),
       backgroundColor: 'rgba(153, 102, 255, 0.6)',
     }],
   };
 
-  // Chart 4: Referrer Sources
   const referrerData = {
-    labels: data.referrer_breakdown.map((d: any) => d.referrer || 'Direct'),
+    labels: referrers.map((d: any) => d.referer ?? d.referrer ?? 'Direct'),
     datasets: [{
-      data: data.referrer_breakdown.map((d: any) => d.count),
+      data: referrers.map((d: any) => d.count),
       backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
     }],
   };
 
-  // Chart 5: Hourly Pattern
   const hourlyData = {
-    labels: data.hourly_pattern.map((d: any) => `${d.hour}:00`),
+    labels: hourly.map((d: any) => `${d.hour}:00`),
     datasets: [{
       label: 'Clicks by Hour',
-      data: data.hourly_pattern.map((d: any) => d.count),
+      data: hourly.map((d: any) => d.count),
       backgroundColor: 'rgba(255, 159, 64, 0.6)',
     }],
   };

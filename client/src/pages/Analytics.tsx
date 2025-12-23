@@ -13,13 +13,14 @@ interface Url {
 
 interface AnalyticsData {
   total_clicks: number;
-  clicks_over_time: Array<{ date: string; count: number }>;
-  device_breakdown: Array<{ device: string; count: number }>;
-  browser_breakdown: Array<{ browser: string; count: number }>;
-  referrer_breakdown: Array<{ referrer: string; count: number }>;
-  geographic_data: Array<{ country: string; count: number }>;
-  hourly_pattern: Array<{ hour: number; count: number }>;
+  clicks_over_time: Array<{ timestamp: string; count: number }>;
+  top_referrers: Array<{ referer: string; count: number }>;
+  device_breakdown?: Array<{ device: string; count: number }>;
+  browser_breakdown?: Array<{ browser: string; count: number }>;
+  referrer_breakdown?: Array<{ referrer: string; count: number }>;
+  hourly_pattern?: Array<{ hour: number; count: number }>;
 }
+
 
 export const Analytics: React.FC = () => {
   const navigate = useNavigate();
