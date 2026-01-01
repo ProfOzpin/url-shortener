@@ -9,6 +9,7 @@ import rateLimit from 'express-rate-limit';
 import { query, initDB } from './db';
 
 const app = express();
+app.set('trust proxy', 1)
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET || JWT_SECRET.length < 32) {
