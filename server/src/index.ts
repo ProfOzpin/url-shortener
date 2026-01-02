@@ -55,6 +55,44 @@ const authenticateToken = (req: AuthRequest, res: Response, next: NextFunction) 
   });
 };
 
+function normalizeUrl(input: unknown): string | null {
+  if (typeof input !== "string") return null;
+
+  const raw = input.trim();
+  if (!raw) return null;
+
+  // Reject whitespace inside (prevents obvious broken inputs)
+  if (/\s/.test(raw)) return null;
+
+  const candidate = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+
+  let u: URL;
+  try {
+    u = new URL(candidate);
+  } catch {
+    return null;
+  }
+
+  // Only allow http/https
+  if (u.protocol !== "http:" && u.protocol !== "https:") return null;
+
+  // Require a real host; allow localhost for dev, otherwise require a dot.
+  if (!u.hostname) return null;
+  if (u.hostname !== "localhost" && !u.hostname.includes(".")) return null;
+
+  // If user entered just "domain.tld" (no path/query/hash), keep it without trailing slash.
+  const rawHadScheme = /^https?:\/\//i.test(raw);
+  const rawWithoutScheme = rawHadScheme ? raw.replace(/^https?:\/\//i, "") : raw;
+  const rawLookedLikeBareHost = !rawWithoutScheme.includes("/") && !rawWithoutScheme.includes("?") && !rawWithoutScheme.includes("#");
+
+  if (rawLookedLikeBareHost && u.pathname === "/" && !u.search && !u.hash) {
+    return u.origin;
+  }
+
+  return u.toString();
+}
+
+
 // Routes
 
 app.post('/api/auth/signup', async (req, res) => {
@@ -109,18 +147,17 @@ app.post('/api/shorten', authenticateToken, async (req: AuthRequest, res) => {
   const { url } = req.body;
   const userId = req.user?.id;
 
-  // Basic Validation
-  if (!url || !url.startsWith('http')) {
+  const normalizedUrl = normalizeUrl(url);
+  if (!normalizedUrl) {
     return res.status(400).json({ error: "Invalid URL format" });
   }
 
-  // Generate random 6-char code
   const shortCode = crypto.randomBytes(4).toString('hex').slice(0, 6);
 
   try {
     const result = await query(
       'INSERT INTO urls (user_id, original_url, short_code) VALUES ($1, $2, $3) RETURNING *',
-      [userId, url, shortCode]
+      [userId, normalizedUrl, shortCode]
     );
     res.json(result.rows[0]);
   } catch (err) {
